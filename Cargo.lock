@@ -2699,6 +2699,7 @@ dependencies = [
  "serde_json",
  "sway-core",
  "sway-error",
+ "sway-features",
  "sway-ir",
  "sway-types",
  "sway-utils",
@@ -2751,6 +2752,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sway-core",
+ "sway-features",
  "sway-types",
  "sway-utils",
  "tempfile",
@@ -2806,6 +2808,7 @@ dependencies = [
  "serde_json",
  "shellfish",
  "sway-core",
+ "sway-features",
  "sway-types",
  "thiserror",
  "tokio",
@@ -2831,6 +2834,7 @@ dependencies = [
  "serde_json",
  "sway-ast",
  "sway-core",
+ "sway-features",
  "sway-lsp",
  "sway-types",
  "swayfmt",
@@ -2890,6 +2894,7 @@ dependencies = [
  "serde_with",
  "sway-core",
  "sway-error",
+ "sway-features",
  "sway-types",
  "sway-utils",
  "sysinfo",
@@ -2914,6 +2919,7 @@ dependencies = [
  "rand",
  "rayon",
  "sway-core",
+ "sway-features",
  "sway-types",
 ]
 
@@ -7686,6 +7692,7 @@ dependencies = [
  "strum 0.26.3",
  "sway-ast",
  "sway-error",
+ "sway-features",
  "sway-ir",
  "sway-parse",
  "sway-types",
@@ -7712,6 +7719,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sway-features"
+version = "0.64.0"
+dependencies = [
+ "paste",
+ "toml 0.8.19",
+]
+
+[[package]]
 name = "sway-ir"
 version = "0.64.0"
 dependencies = [
@@ -7725,6 +7740,7 @@ dependencies = [
  "prettydiff 0.7.0",
  "rustc-hash",
  "slotmap",
+ "sway-features",
  "sway-ir-macros",
  "sway-types",
  "sway-utils",
@@ -7773,6 +7789,7 @@ dependencies = [
  "sway-ast",
  "sway-core",
  "sway-error",
+ "sway-features",
  "sway-lsp-test-utils",
  "sway-parse",
  "sway-types",
@@ -8156,6 +8173,7 @@ dependencies = [
  "serde_json",
  "sway-core",
  "sway-error",
+ "sway-features",
  "sway-ir",
  "sway-types",
  "sway-utils",
