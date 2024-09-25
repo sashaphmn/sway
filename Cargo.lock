@@ -7723,7 +7723,6 @@ name = "sway-features"
 version = "0.64.0"
 dependencies = [
  "paste",
- "toml 0.8.19",
 ]
 
 [[package]]
