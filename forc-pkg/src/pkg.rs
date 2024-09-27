@@ -309,9 +309,9 @@ pub struct BuildOpts {
     /// The set of options to filter by member project kind.
     pub member_filter: MemberFilter,
     /// Set of enabled experimental flags
-    pub experimental: Option<String>,
+    pub experimental: Vec<sway_features::Features>,
     /// Set of disabled experimental flags
-    pub no_experimental: Option<String>,
+    pub no_experimental: Vec<sway_features::Features>,
 }
 
 /// The set of options to filter type of projects to build in a workspace.
@@ -2154,6 +2154,8 @@ pub fn build_with_options(build_options: &BuildOpts) -> Result<Built> {
         pkg,
         build_target,
         member_filter,
+        experimental,
+        no_experimental,
         ..
     } = &build_options;
 
@@ -2194,7 +2196,14 @@ pub fn build_with_options(build_options: &BuildOpts) -> Result<Built> {
     // Build it!
     let mut built_workspace = Vec::new();
     let build_start = std::time::Instant::now();
-    let built_packages = build(&build_plan, *build_target, &build_profile, &outputs)?;
+    let built_packages = build(
+        &build_plan,
+        *build_target,
+        &build_profile,
+        &outputs,
+        experimental,
+        no_experimental,
+    )?;
     let output_dir = pkg.output_directory.as_ref().map(PathBuf::from);
     let total_size = built_packages
         .iter()
@@ -2304,6 +2313,8 @@ pub fn build(
     target: BuildTarget,
     profile: &BuildProfile,
     outputs: &HashSet<NodeIx>,
+    experimental: &[sway_features::Features],
+    no_experimental: &[sway_features::Features],
 ) -> anyhow::Result<Vec<(NodeIx, BuiltPackage)>> {
     let mut built_packages = Vec::new();
 
@@ -2338,12 +2349,23 @@ pub fn build(
             &pkg.source.display_compiling(manifest.dir()),
         );
 
+        // Setup experimental features
+        let cli_experimental = experimental;
+        let cli_no_experimental = no_experimental;
+
         let mut experimental = ExperimentalFeatures::default();
         experimental
             .parse_from_package_manifest(&manifest.project.experimental)
             .map_err(|err| anyhow!("{err}"))?;
-        //experimental.parse_from_cli();
-        experimental.parse_from_environment_variables().unwrap();
+        for f in cli_experimental {
+            experimental.enable_feature(*f, true);
+        }
+        for f in cli_no_experimental {
+            experimental.enable_feature(*f, false);
+        }
+        experimental
+            .parse_from_environment_variables()
+            .map_err(|err| anyhow!("{err}"))?;
 
         let descriptor = PackageDescriptor {
             name: pkg.name.clone(),
@@ -2522,6 +2544,8 @@ pub fn check(
     include_tests: bool,
     engines: &Engines,
     retrigger_compilation: Option<Arc<AtomicBool>>,
+    experimental: &[sway_features::Features],
+    no_experimental: &[sway_features::Features],
 ) -> anyhow::Result<Vec<(Option<Programs>, Handler)>> {
     let mut lib_namespace_map = HashMap::default();
     let mut source_map = SourceMap::new();
@@ -2533,12 +2557,23 @@ pub fn check(
         let pkg = &plan.graph[node];
         let manifest = &plan.manifest_map()[&pkg.id()];
 
+        // Setup experimental features
+        let cli_experimental = experimental;
+        let cli_no_experimental = no_experimental;
+
         let mut experimental = ExperimentalFeatures::default();
         experimental
             .parse_from_package_manifest(&manifest.project.experimental)
             .map_err(|err| anyhow!("{err}"))?;
-        //experimental.parse_from_cli();
-        experimental.parse_from_environment_variables().unwrap();
+        for f in cli_experimental {
+            experimental.enable_feature(*f, true);
+        }
+        for f in cli_no_experimental {
+            experimental.enable_feature(*f, false);
+        }
+        experimental
+            .parse_from_environment_variables()
+            .map_err(|err| anyhow!("{err}"))?;
 
         // This is necessary because `CONTRACT_ID` is a special constant that's injected into the
         // compiler's namespace. Although we only know the contract id during building, we are
