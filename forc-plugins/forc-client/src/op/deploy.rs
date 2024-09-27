@@ -42,7 +42,6 @@ use std::{
 };
 use sway_core::language::parsed::TreeType;
 use sway_core::BuildTarget;
-use sway_features::ExperimentalFeatures;
 
 /// Maximum contract size allowed for a single contract. If the target
 /// contract size is bigger than this amount, forc-deploy will automatically
@@ -667,10 +666,8 @@ fn build_opts_from_cmd(cmd: &cmd::Deploy) -> pkg::BuildOpts {
         build_target: BuildTarget::default(),
         tests: false,
         member_filter: pkg::MemberFilter::only_contracts(),
-        experimental: ExperimentalFeatures {
-            encoding_v1: !cmd.no_encoding_v1,
-            ..Default::default()
-        },
+        experimental: cmd.experimental.clone(),
+        no_experimental: cmd.no_experimental.clone(),
     }
 }
 

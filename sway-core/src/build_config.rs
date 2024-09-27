@@ -6,7 +6,6 @@ use std::{
     sync::Arc,
 };
 use strum::{Display, EnumString};
-use sway_features::ExperimentalFeatures;
 use sway_ir::{PassManager, PrintPassesOpts};
 
 #[derive(
@@ -194,7 +193,7 @@ pub struct BuildConfig {
     pub(crate) optimization_level: OptLevel,
     pub time_phases: bool,
     pub metrics_outfile: Option<String>,
-    pub experimental: ExperimentalFeatures,
+    // pub experimental: ExperimentalFeatures,
     pub lsp_mode: Option<LspConfig>,
 }
 
@@ -242,10 +241,10 @@ impl BuildConfig {
             time_phases: false,
             metrics_outfile: None,
             optimization_level: OptLevel::Opt0,
-            experimental: ExperimentalFeatures {
-                encoding_v1: false,
-                ..Default::default()
-            },
+            // experimental: ExperimentalFeatures {
+            //     encoding_v1: false,
+            //     ..Default::default()
+            // },
             lsp_mode: None,
         }
     }
@@ -316,12 +315,12 @@ impl BuildConfig {
         }
     }
 
-    pub fn with_experimental(self, experimental: ExperimentalFeatures) -> Self {
-        Self {
-            experimental,
-            ..self
-        }
-    }
+    // pub fn with_experimental(self, experimental: ExperimentalFeatures) -> Self {
+    //     Self {
+    //         experimental,
+    //         ..self
+    //     }
+    // }
 
     pub fn with_lsp_mode(self, lsp_mode: Option<LspConfig>) -> Self {
         Self { lsp_mode, ..self }
