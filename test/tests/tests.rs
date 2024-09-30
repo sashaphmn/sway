@@ -26,20 +26,53 @@ pub fn main() {
                     compile_forc();
                 });
 
+                let snapshot_toml =
+                    std::fs::read_to_string(format!("{}/snapshot.toml", dir.display()))?;
+                let snapshot_toml = toml::from_str::<toml::Value>(&snapshot_toml)?;
+                let cmds = if let Some(cmds) = snapshot_toml.get("cmds") {
+                    cmds.as_array()
+                        .unwrap()
+                        .iter()
+                        .map(|v| v.as_str().unwrap())
+                        .collect::<Vec<_>>()
+                } else {
+                    vec!["forc build --path {root}"]
+                };
+
                 let root = dir.to_str().unwrap();
 
-                let args = vec!["build", "--path", root];
-                let o = std::process::Command::new("../target/release/forc")
-                    .args(args)
-                    .output()
-                    .unwrap();
+                use std::fmt::Write;
+                let mut snapshot = String::new();
 
-                let snapshot = clean_output(&format!(
-                    "exit status: {}\nstdout:\n{}\nstderr:\n{}",
-                    o.status.code().unwrap(),
-                    String::from_utf8(o.stdout).unwrap(),
-                    String::from_utf8(o.stderr).unwrap()
-                ));
+                for cmd in cmds {
+                    let cmd = cmd.replace("{root}", root);
+
+                    let _ = writeln!(&mut snapshot, "> {}", cmd);
+
+                    let cmd = if let Some(cmd) = cmd.strip_prefix("forc ") {
+                        format!("../target/release/forc {cmd} 1>&2")
+                    } else {
+                        panic!("Not supported. Possible commands: forc")
+                    };
+
+                    let o = duct::cmd!("bash", "-c", cmd.clone(),)
+                        .stderr_to_stdout()
+                        .stdout_capture()
+                        .unchecked()
+                        .start()
+                        .unwrap();
+                    let o = o.wait().unwrap();
+
+                    let _ = writeln!(
+                        &mut snapshot,
+                        "{}",
+                        clean_output(&format!(
+                            "exit status: {}\noutput:\n{}",
+                            o.status.code().unwrap(),
+                            std::str::from_utf8(&o.stdout).unwrap(),
+                        ))
+                    );
+                }
 
                 fn stdout(root: &str, snapshot: &str) {
                     let mut insta = insta::Settings::new();
