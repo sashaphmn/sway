@@ -1,5 +1,5 @@
 use libtest_mimic::{Arguments, Trial};
-use std::{path::PathBuf, sync::Once};
+use std::{path::PathBuf, str::FromStr, sync::Once};
 
 static FORC_COMPILATION: Once = Once::new();
 
@@ -13,14 +13,24 @@ fn compile_forc() {
 }
 
 pub fn main() {
+    let repo_root: PathBuf =
+        PathBuf::from_str(&std::env::var("CARGO_MANIFEST_DIR").unwrap()).unwrap();
+    let repo_root = repo_root.parent().unwrap().to_path_buf();
+
     let mut args = Arguments::from_args();
     args.nocapture = true;
 
     let tests = discover_test()
         .into_iter()
         .map(|dir| {
-            let manifest_dir = "src/e2e_vm_tests/test_programs/";
-            let name = dir.to_str().unwrap().to_string().replace(manifest_dir, "");
+            let test_programs_dir = "src/e2e_vm_tests/test_programs/";
+            let name = dir
+                .to_str()
+                .unwrap()
+                .to_string()
+                .replace(test_programs_dir, "");
+
+            let repo_root = repo_root.clone();
             Trial::test(name, move || {
                 FORC_COMPILATION.call_once(|| {
                     compile_forc();
@@ -39,23 +49,24 @@ pub fn main() {
                     vec!["forc build --path {root}"]
                 };
 
-                let root = dir.to_str().unwrap();
+                let root = format!("test/{}", dir.display());
 
                 use std::fmt::Write;
                 let mut snapshot = String::new();
 
                 for cmd in cmds {
-                    let cmd = cmd.replace("{root}", root);
+                    let cmd = cmd.replace("{root}", &root);
 
                     let _ = writeln!(&mut snapshot, "> {}", cmd);
 
                     let cmd = if let Some(cmd) = cmd.strip_prefix("forc ") {
-                        format!("../target/release/forc {cmd} 1>&2")
+                        format!("target/release/forc {cmd} 1>&2")
                     } else {
                         panic!("Not supported. Possible commands: forc")
                     };
 
-                    let o = duct::cmd!("bash", "-c", cmd.clone(),)
+                    let o = duct::cmd!("bash", "-c", cmd.clone())
+                        .dir(repo_root.clone())
                         .stderr_to_stdout()
                         .stdout_capture()
                         .unchecked()
@@ -83,7 +94,7 @@ pub fn main() {
                     insta::assert_snapshot!("stdout", snapshot);
                     drop(scope);
                 }
-                stdout(&format!("../{root}"), &snapshot);
+                stdout(&format!("../../{root}"), &snapshot);
 
                 Ok(())
             })
