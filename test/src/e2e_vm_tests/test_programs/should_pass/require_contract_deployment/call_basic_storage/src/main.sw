@@ -1,9 +1,9 @@
 script;
 use basic_storage_abi::{BasicStorage, Quad};
 
-#[cfg(experimental_new_encoding = false)]
+#[cfg(experimental_encoding_v1 = false)]
 const CONTRACT_ID = 0x94db39f409a31b9f2ebcadeea44378e419208c20de90f5d8e1e33dc1523754cb;
-#[cfg(experimental_new_encoding = true)]
+#[cfg(experimental_encoding_v1 = true)]
 const CONTRACT_ID = 0xd8e3576d2f7b2ed2d5f8935aef4837e6ff32b1c092d8ae369ad0fdd955a52169; // AUTO-CONTRACT-ID ../../test_contracts/basic_storage --release
 
 fn main() -> u64 {
