@@ -1,4 +1,5 @@
 use libtest_mimic::{Arguments, Trial};
+use normalize_path::NormalizePath;
 use std::{path::PathBuf, str::FromStr, sync::Once};
 
 static FORC_COMPILATION: Once = Once::new();
@@ -86,6 +87,9 @@ pub fn main() {
                 }
 
                 fn stdout(root: &str, snapshot: &str) {
+                    let root = PathBuf::from_str(root).unwrap();
+                    let root = root.normalize();
+
                     let mut insta = insta::Settings::new();
                     insta.set_snapshot_path(root);
                     insta.set_prepend_module_to_snapshot(false);
@@ -94,7 +98,7 @@ pub fn main() {
                     insta::assert_snapshot!("stdout", snapshot);
                     drop(scope);
                 }
-                stdout(&format!("../../{root}"), &snapshot);
+                stdout(&format!("{}/{root}", repo_root.display()), &snapshot);
 
                 Ok(())
             })
