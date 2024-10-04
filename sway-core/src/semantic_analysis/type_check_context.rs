@@ -1308,7 +1308,7 @@ impl<'a> TypeCheckContext<'a> {
             for decl_ref in matching_method_decl_refs.clone().into_iter() {
                 let method = decl_engine.get_function(&decl_ref);
                 // Contract call methods don't have self parameter.
-                let args_len_diff = if method.is_contract_call && arguments_types.len() > 0 {
+                let args_len_diff = if method.is_contract_call && !arguments_types.is_empty() {
                     1
                 } else {
                     0
@@ -1454,7 +1454,7 @@ impl<'a> TypeCheckContext<'a> {
                             .map(|t| {
                                 (
                                     to_string(t.0.clone(), t.1.clone()),
-                                    self.engines.help_out(t.2.clone()).to_string(),
+                                    self.engines.help_out(t.2).to_string(),
                                 )
                             })
                             .collect::<Vec<(String, String)>>();
@@ -1476,29 +1476,8 @@ impl<'a> TypeCheckContext<'a> {
                     maybe_method_decl_refs.first().cloned()
                 }
             } else {
-                // When we can't match any method with parameter types we still return the first method found
-                // This was the behavior before introducing the parameter type matching
-                //matching_method_decl_refs.first().cloned();
-
                 for decl_ref in matching_method_decl_refs.clone().into_iter() {
                     let method = decl_engine.get_function(&decl_ref);
-                    println!(
-                        "  {} {} {:?} // {:?} Return:{:?} // {:?}",
-                        method.is_contract_call,
-                        method.name.as_str(),
-                        self.engines.help_out(
-                            method
-                                .parameters
-                                .iter()
-                                .map(|p| p.type_argument.type_id)
-                                .collect::<Vec<_>>()
-                        ),
-                        self.engines
-                            .help_out(arguments_types.iter().collect::<Vec<_>>()),
-                        self.engines.help_out(method.return_type.type_id),
-                        self.engines.help_out(self.type_annotation())
-                    );
-
                     matching_method_strings.insert(format!(
                         "{}({}) -> {}{}",
                         method.name.as_str(),
@@ -1508,9 +1487,7 @@ impl<'a> TypeCheckContext<'a> {
                             .map(|p| self.engines.help_out(p.type_argument.type_id).to_string())
                             .collect::<Vec<_>>()
                             .join(", "),
-                        self.engines
-                            .help_out(method.return_type.type_id)
-                            .to_string(),
+                        self.engines.help_out(method.return_type.type_id),
                         if let Some(implementing_for_type_id) = method.implementing_for_typeid {
                             format!(" in {}", self.engines.help_out(implementing_for_type_id))
                         } else {
@@ -1519,6 +1496,7 @@ impl<'a> TypeCheckContext<'a> {
                     ));
                 }
 
+                // When we can't match any method with parameter types we will throw an error.
                 None
             }
         };
@@ -1578,10 +1556,7 @@ impl<'a> TypeCheckContext<'a> {
                     ) {
                         "".to_string()
                     } else {
-                        format!(
-                            " -> {}",
-                            self.engines.help_out(self.type_annotation).to_string()
-                        )
+                        format!(" -> {}", self.engines.help_out(self.type_annotation))
                     }
                 ),
                 type_name,

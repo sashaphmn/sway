@@ -371,8 +371,9 @@ pub enum CompileError {
     #[error("Field \"{field_name}\" has multiple definitions.")]
     StructFieldDuplicated { field_name: Ident, duplicate: Ident },
     #[error("No method \"{method}\" found for type \"{type_name}\".{}", 
-        if matching_method_strings.is_empty() { "".to_string()} else
-        {
+        if matching_method_strings.is_empty() {
+            "".to_string()
+        } else {
             format!("  \nMatching method{}:\n{}", if matching_method_strings.len()> 1 {"s"} else {""},
             matching_method_strings.iter().map(|m| format!("    {m}")).collect::<Vec<_>>().join("\n"))
         }
