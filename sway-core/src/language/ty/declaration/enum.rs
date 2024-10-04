@@ -1,12 +1,12 @@
 use crate::{
     engine_threading::*,
     has_changes,
-    language::{parsed::EnumDeclaration, CallPath, Visibility, ty::TyDeclParsedType},
+    language::{parsed::EnumDeclaration, ty::TyDeclParsedType, CallPath, Visibility},
     semantic_analysis::type_check_context::MonomorphizeHelper,
     transform,
     type_system::*,
 };
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
     hash::{Hash, Hasher},
@@ -16,7 +16,6 @@ use sway_error::{
     handler::{ErrorEmitted, Handler},
 };
 use sway_types::{Ident, Named, Span, Spanned};
-
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TyEnumDecl {

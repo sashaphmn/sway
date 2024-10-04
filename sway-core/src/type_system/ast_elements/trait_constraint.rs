@@ -9,7 +9,7 @@ use crate::{
     type_system::priv_prelude::*,
     types::{CollectTypesMetadata, CollectTypesMetadataContext, TypeMetadata},
 };
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
     fmt,
@@ -20,7 +20,6 @@ use sway_error::{
     handler::{ErrorEmitted, Handler},
 };
 use sway_types::Spanned;
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TraitConstraint {

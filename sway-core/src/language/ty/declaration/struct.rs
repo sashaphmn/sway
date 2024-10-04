@@ -2,19 +2,18 @@ use crate::{
     engine_threading::*,
     error::module_can_be_changed,
     has_changes,
-    language::{parsed::StructDeclaration, CallPath, Visibility, ty::TyDeclParsedType},
+    language::{parsed::StructDeclaration, ty::TyDeclParsedType, CallPath, Visibility},
     semantic_analysis::type_check_context::MonomorphizeHelper,
     transform,
     type_system::*,
     Namespace,
 };
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::{
     cmp::Ordering,
     hash::{Hash, Hasher},
 };
 use sway_types::{Ident, Named, Span, Spanned};
-
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TyStructDecl {

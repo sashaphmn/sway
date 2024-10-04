@@ -1,20 +1,20 @@
 use crate::{
+    decl_engine::*,
+    engine_threading::*,
     has_changes,
+    language::{parsed, ty::*, Inline, Purity, Visibility},
     language::{
         parsed::{FunctionDeclaration, FunctionDeclarationKind},
         CallPath,
     },
     semantic_analysis::type_check_context::MonomorphizeHelper,
-    transform::AttributeKind,
-    decl_engine::*,
-    engine_threading::*,
-    language::{parsed, ty::*, Inline, Purity, Visibility},
     semantic_analysis::TypeCheckContext,
     transform,
+    transform::AttributeKind,
     type_system::*,
     types::*,
 };
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
     fmt,

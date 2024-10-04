@@ -7,8 +7,8 @@ use crate::{
     has_changes,
     language::{
         parsed::{self, TraitDeclaration},
-        CallPath, Visibility,
         ty::{TyDecl, TyDeclParsedType},
+        CallPath, Visibility,
     },
     semantic_analysis::{
         type_check_context::MonomorphizeHelper, TypeCheckAnalysis, TypeCheckAnalysisContext,
@@ -17,14 +17,13 @@ use crate::{
     transform,
     type_system::*,
 };
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::{
     fmt,
     hash::{Hash, Hasher},
 };
 use sway_error::handler::{ErrorEmitted, Handler};
 use sway_types::{Ident, Named, Span, Spanned};
-
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TyTraitDecl {

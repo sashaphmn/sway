@@ -1,12 +1,11 @@
-use crate::engine_threading::{EqWithEngines, PartialEqWithEngines, PartialEqWithEnginesContext};
 use super::DeclUniqueId;
-use serde::{Serialize, Deserialize};
+use crate::engine_threading::{EqWithEngines, PartialEqWithEngines, PartialEqWithEnginesContext};
+use serde::{Deserialize, Serialize};
 use std::{
     hash::{DefaultHasher, Hasher},
     marker::PhantomData,
     {fmt, hash::Hash},
 };
-
 
 pub type ParsedDeclIdIndexType = usize;
 
