@@ -1334,7 +1334,11 @@ impl<'a> TypeCheckContext<'a> {
 
             if !maybe_method_decl_refs.is_empty() {
                 let mut trait_methods = HashMap::<
-                    (CallPath, Vec<WithEngines<TypeArgument>>, TypeId),
+                    (
+                        CallPath,
+                        Vec<WithEngines<TypeArgument>>,
+                        Option<WithEngines<TypeInfo>>,
+                    ),
                     DeclRefFunction,
                 >::new();
                 let mut impl_self_method = None;
@@ -1390,7 +1394,11 @@ impl<'a> TypeCheckContext<'a> {
                                                     .cloned()
                                                     .map(|a| self.engines.help_out(a))
                                                     .collect::<Vec<_>>(),
-                                                method.implementing_for_typeid.unwrap(),
+                                                method.implementing_for_typeid.map(|t| {
+                                                    self.engines.help_out(
+                                                        (*self.engines.te().get(t)).clone(),
+                                                    )
+                                                }),
                                             ),
                                             method_ref.clone(),
                                         );
@@ -1410,7 +1418,9 @@ impl<'a> TypeCheckContext<'a> {
                                         .cloned()
                                         .map(|a| self.engines.help_out(a))
                                         .collect::<Vec<_>>(),
-                                    method.implementing_for_typeid.unwrap(),
+                                    method.implementing_for_typeid.map(|t| {
+                                        self.engines.help_out((*self.engines.te().get(t)).clone())
+                                    }),
                                 ),
                                 method_ref.clone(),
                             );
@@ -1454,7 +1464,12 @@ impl<'a> TypeCheckContext<'a> {
                             .map(|t| {
                                 (
                                     to_string(t.0.clone(), t.1.clone()),
-                                    self.engines.help_out(t.2).to_string(),
+                                    t.2.clone()
+                                        .map(|t| t.to_string())
+                                        .or_else(|| {
+                                            Some(self.engines().help_out(type_id).to_string())
+                                        })
+                                        .unwrap(),
                                 )
                             })
                             .collect::<Vec<(String, String)>>();
