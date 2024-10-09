@@ -501,11 +501,11 @@ where
 
     // The safest way would be to return a canonical fully qualified type path.
     // We do not have a way to do this at the moment, so the best way is to use
-    // exactly what was typed by the user, to accomodate aliased imports.
+    // exactly what was typed by the user, to accommodate aliased imports.
     fn generate_type(engines: &Engines, t: &TypeArgument) -> Option<String> {
         match &*engines.te().get(t.type_id) {
             // when a function does not a return type defined, the span points to the whole signature.
-            TypeInfo::Tuple(v) if v.is_empty() => return Some("()".into()),
+            TypeInfo::Tuple(v) if v.is_empty() => Some("()".into()),
             _ => Some(t.span().as_str().to_string()),
         }
     }
